@@ -1,0 +1,48 @@
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - binary: shiori
+    env:
+      - CGO_ENABLED=0
+      - GIN_MODE=release
+    tags:
+      - netgo
+      - osusergo
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm
+      - arm64
+    goarm:
+      - "7"
+    ignore:
+      - goos: darwin
+        goarch: arm
+      - goos: windows
+        goarch: arm
+      - goos: windows
+        goarch: arm64
+archives:
+  - id: shiori
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- if eq .Os "darwin" }}Darwin{{- else if eq .Os "linux" }}Linux{{- else if eq .Os "windows" }}Windows{{- else }}{{ .Os }}{{ end }}_
+      {{- if eq .Arch "amd64" }}x86_64{{- else if eq .Arch "arm64" }}aarch64{{- else }}{{ .Arch }}{{ end }}
+
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+release:
+  prerelease: auto
